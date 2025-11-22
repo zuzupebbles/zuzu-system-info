@@ -1,6 +1,3 @@
-Here’s an updated README with added public-facing sections (Installation, Contributing, License, Author) while keeping your existing content intact.
-
-````markdown
 # `zuzu-system-info.py`
 
 A Python script that collects a structured snapshot of a Linux host and generates an LLM-friendly Markdown report.
