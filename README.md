@@ -1,9 +1,12 @@
+Here’s an updated README with added public-facing sections (Installation, Contributing, License, Author) while keeping your existing content intact.
+
+````markdown
 # `zuzu-system-info.py`
 
-A Python script that collects a structured snapshot of a Linux host and generates an LLM‑friendly Markdown report.
+A Python script that collects a structured snapshot of a Linux host and generates an LLM-friendly Markdown report.
 
 It combines the ideas from the original `qwi-system-info.sh` / `qwi-system-report.sh` pair into a single tool:  
-**collect snapshot → optionally generate report right away**. :contentReference[oaicite:1]{index=1}
+**collect snapshot → optionally generate report right away**.
 
 ---
 
@@ -16,7 +19,7 @@ This script is built to:
   - readable for humans,
   - cheap for LLMs to ingest,
   - structured with predictable tables and headings.
-- Keep secrets and host identifiers out of the high‑level report where possible, while still keeping the raw snapshot around.
+- Keep secrets and host identifiers out of the high-level report where possible, while still keeping the raw snapshot around.
 
 Generation pattern:
 
@@ -69,7 +72,7 @@ Each `0X-*.txt` file is a raw dump of commands:
   `docker info`, `docker ps`, `docker network ls` (with bridge iface guessing), `docker volume ls`, `docker images`.
 
 * `08-packages.txt`
-  Distro-family‑specific package snapshots:
+  Distro-family-specific package snapshots:
 
     * `dpkg-query -W` on Debian family
     * `pacman -Q` on Arch
@@ -156,13 +159,16 @@ Uses `build_hardware_section()`:
 * `3.1 CPU summary` from `lscpu`:
 
     * model, arch, sockets, cores, threads, virtualization flags, etc.
+
 * `3.2 Memory` from `free -h`:
 
     * RAM (total/used/free/shared/buff-cache/available) and swap (if present).
+
 * `3.3 Block devices` from `lsblk -P`:
 
     * physical disks with transport (SATA/SCSI/NVMe/iscsi), rotational flag, model;
     * logical children (partitions, LUKS, LVM) with parent mapping and mountpoints.
+
 * `3.4 Filesystem usage` from `df -h`:
 
     * retains overlay entries so Docker layers are visible to an LLM.
@@ -174,13 +180,17 @@ Uses `build_network_section()`:
 * `4.1 Interface summary` from `ip -br addr`:
 
     * interface, state, IPv4 list, IPv6 list.
+
 * `4.2 IPv4 routing table` from `ip route`:
 
     * destination, gateway, dev, src, extra flags.
+
 * `4.3 IPv6 routing table` from `ip -6 route`.
+
 * `4.4 DNS configuration` from `/etc/resolv.conf`:
 
     * search domains, nameservers.
+
 * **4.5 Listening sockets (new)**:
 
     * runs `ss -lntu` and embeds the output in a fenced block.
@@ -197,7 +207,9 @@ Uses `build_firewall_section()`:
     * default policies (`INPUT`, `FORWARD`, `OUTPUT`),
     * a table of `FORWARD` rules for IPv4,
     * Docker-related chains (`DOCKER*`).
+
 * Embeds raw `nft list ruleset` in a fenced `text` block if present.
+
 * Embeds raw `ufw status verbose` in a fenced block if present.
 
 All of this stays reasonably compact while still letting an LLM understand **policy shape**.
@@ -262,6 +274,7 @@ Uses `build_packages_section(pkg_file, pkg_mode)` and the snapshot from `collect
 
         * `core-packages-<family>.patterns` or
         * `core-packages-generic.patterns`.
+
     * The report shows:
 
         * `8.1 Core OS / infrastructure packages`:
@@ -334,10 +347,12 @@ Two notable additions that weren’t present in the original Python version:
 
     * **Snapshot side**:
       `collect_net()` now appends a `== ss -lntu ==` section to `04-network.txt`.
+
     * **Report side**:
 
         * `build_network_section()` has a new subsection `4.5 Listening sockets (ss -lntu)`.
         * The raw `ss -lntu` output is embedded in a fenced `text` block.
+
     * Why this helps LLMs:
 
         * It makes the **exposed surface area** of the host explicit (what ports are listening and on which addresses).
@@ -350,6 +365,7 @@ Two notable additions that weren’t present in the original Python version:
         * explicitly states the package mode,
         * renders a clean “core packages” table rather than dumping raw text,
         * avoids inlining huge lists in verbose mode but still quantifies their size.
+
     * This is particularly helpful if you’re asking an LLM things like:
 
         * “Compare base OS packages across these hosts.”
@@ -365,7 +381,9 @@ The anonymizer is intentionally simple but effective for sharing reports with an
 
     * `Machine ID: ...` → `Machine ID: [anonymized]`
     * `Boot ID: ...`     → `Boot ID: [anonymized]`
+
 * Replaces any IPv4 address with `10.0.0.x`.
+
 * Replaces any MAC address with `02:00:00:00:00:01`.
 
 This means:
@@ -398,6 +416,89 @@ This means:
 
 You get raw data for auditors and a clean, normalized Markdown interface for your future robot collaborators.
 
+---
+
+## 9. Installation
+
+### 9.1 Requirements
+
+* Python 3.8+ (tested with modern CPython).
+* Standard Linux userland with:
+
+    * `ip`, `ss` (usually from `iproute2`),
+    * `iptables` / `ip6tables` and/or `nft`,
+    * `systemctl` (for systemd-based systems),
+    * Docker CLI (`docker`) if you want container sections,
+    * a supported package manager:
+
+        * `dpkg-query` (Debian / Ubuntu, etc.),
+        * `pacman` (Arch / derivatives),
+        * `rpm` (RHEL / SUSE / Fedora family).
+
+The script degrades gracefully when some tools are missing and will note skipped sections.
+
+### 9.2 Manual install
+
+Clone the repository and install the script somewhere on your `$PATH`:
+
+```bash
+git clone https://github.com/zuzupebbles/zuzu-system-info.git
+cd zuzu-system-info
+
+# Option 1: run in-place
+python3 ./zuzu-system-info.py --help
+
+# Option 2: install as a convenience wrapper
+sudo install -m 0755 zuzu-system-info.py /usr/local/sbin/zuzu-system-info
 ```
-# zuzu-system-info
-# zuzu-system-info
+
+If you packaged this via a distro-specific mechanism (e.g. an Arch PKGBUILD), it should install a `zuzu-system-info` executable into something like `/usr/local/sbin` or `/usr/bin` and pull in any runtime dependencies as needed.
+
+---
+
+## 10. Contributing
+
+Contributions are welcome, especially around:
+
+* additional distro/package-manager support,
+* smarter anonymization strategies,
+* extra sections or more robust parsing of existing ones,
+* packaging for popular distributions.
+
+Basic guidelines:
+
+* Keep the Markdown output predictable and LLM-friendly:
+
+    * stable headings,
+    * consistent tables via the shared `md_table()` helper,
+    * avoid inlining enormous raw dumps in the report.
+* Avoid leaking sensitive identifiers into the high-level report; prefer leaving them in the raw snapshot files.
+* Try to keep each section’s logic self-contained and well-documented.
+
+Bug reports and pull requests are preferred over telepathic suggestions.
+
+---
+
+## 11. License
+
+This project is licensed under the **MIT License**.
+
+See the `LICENSE` file in this repository for the full text.
+
+---
+
+## 12. Author & acknowledgements
+
+**Author / Maintainer**
+
+* **Name:** Peter Knauer (zuzu@quantweave.ca)
+
+**Acknowledgements**
+
+* Inspired by the original shell scripts `qwi-system-info.sh` and `qwi-system-report.sh`.
+* Thanks to everyone who tests this on weird Linux setups, container-heavy hosts, and lab boxes and reports back what breaks.
+
+By design, this script exists to make life easier for humans and LLMs trying to understand real-world Linux systems from clean, structured snapshots.
+
+```
+```
