@@ -497,5 +497,3 @@ See the `LICENSE` file in this repository for the full text.
 
 By design, this script exists to make life easier for humans and LLMs trying to understand real-world Linux systems from clean, structured snapshots.
 
-```
-```
