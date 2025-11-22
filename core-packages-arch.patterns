@@ -1,0 +1,55 @@
+# Kernel / system
+^linux(\s|$)
+^linux-lts(\s|$)
+^linux-zen(\s|$)
+^linux-api-headers(\s|$)
+^systemd(\s|$)
+^systemd-libs(\s|$)
+^systemd-sysvcompat(\s|$)
+^util-linux(\s|$)
+^util-linux-libs(\s|$)
+^archlinux-keyring(\s|$)
+
+# Filesystems / storage
+^btrfs-progs(\s|$)
+^xfsprogs(\s|$)
+^e2fsprogs(\s|$)
+^mdadm(\s|$)
+^lvm2(\s|$)
+^cryptsetup(\s|$)
+
+# Networking / firewall
+^networkmanager(\s|$)
+^wpa_supplicant(\s|$)
+^iproute2(\s|$)
+^nftables(\s|$)
+^iptables(\s|$)
+^wireguard-tools(\s|$)
+^openvpn(\s|$)
+
+# Bluetooth
+^bluez(\s|$)
+^bluez-libs(\s|$)
+^bluez-utils(\s|$)
+
+# Audio / media
+^pipewire(\s|$)
+^pipewire-
+^alsa-
+^pulseaudio(\s|$)
+
+# Containers / orchestration
+^docker(\s|$)
+^docker-buildx(\s|$)
+^docker-compose(\s|$)
+^containerd(\s|$)
+^kubectl(\s|$)
+^kubectx(\s|$)
+^podman(\s|$)
+
+# GPU / graphics (Arch-ish names)
+^mesa(\s|$)
+^vulkan-
+^nvidia-utils(\s|$)
+^nvidia-dkms(\s|$)
+^rocm-
